@@ -16,5 +16,8 @@
     "url": "https://github.com/zJona13/desempeno-personal-rfa/issues"
   },
   "homepage": "https://github.com/zJona13/desempeno-personal-rfa#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
 }

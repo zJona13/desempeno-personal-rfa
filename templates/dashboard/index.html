@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Evaluación IES RFA{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Welcome and overview -->
+  <div class="card">
+    <div class="card-body">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-1">Bienvenido, {{ current_user.full_name() }}</h1>
+          <p class="text-gray-600">
+            {% if stats.active_period %}
+              Periodo de Evaluación Activo: {{ stats.active_period.name }} 
+              <span class="text-sm">({{ format_date(stats.active_period.start_date) }} al {{ format_date(stats.active_period.end_date) }})</span>
+            {% else %}
+              No hay periodo de evaluación activo actualmente.
+            {% endif %}
+          </p>
+        </div>
+        <div class="mt-4 md:mt-0">
+          <a href="#" class="btn-primary">Ver mi perfil</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  {% if notifications %}
+    <div class="space-y-3">
+      {% for notification in notifications %}
+        <div class="alert alert-{{ notification.type }}">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              {% if notification.type == 'warning' %}
+                <svg class="h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              {% elif notification.type == 'info' %}
+                <svg class="h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              {% elif notification.type == 'success' %}
+                <svg class="h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              {% else %}
+                <svg class="h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              {% endif %}
+            </div>
+            <div class="ml-3">
+              <p class="text-sm">{{ notification.message }}</p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Stats overview -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Self-evaluation status -->
+    <div class="card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
+      <div class="card-body">
+        <div class="flex items-center">
+          <div class="rounded-md bg-blue-500 p-2 mr-4">
+            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Autoevaluación</p>
+            <p class="text-xl font-semibold text-gray-900">
+              {% if stats.self_eval_count %}
+                Completada
+              {% else %}
+                Pendiente
+              {% endif %}
+            </p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="{{ url_for('self_evaluation.index') }}" class="text-sm text-blue-700 hover:text-blue-600 font-medium">
+            {% if stats.self_eval_count %}
+              Ver mi autoevaluación →
+            {% else %}
+              Completar autoevaluación →
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending validations (for validators) -->
+    {% if user_has_permission('validate_evaluations') %}
+      <div class="card bg-gradient-to-br from-amber-50 to-amber-100 border-l-4 border-amber-500">
+        <div class="card-body">
+          <div class="flex items-center">
+            <div class="rounded-md bg-amber-500 p-2 mr-4">
+              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Validaciones Pendientes</p>
+              <p class="text-xl font-semibold text-gray-900">{{ stats.pending_validations|default(0) }}</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a href="{{ url_for('validation.index') }}" class="text-sm text-amber-700 hover:text-amber-600 font-medium">
+              Ir a validaciones →
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Pending evaluations (for evaluators) -->
+    {% if user_has_permission('evaluate_others') %}
+      <div class="card bg-gradient-to-br from-teal-50 to-teal-100 border-l-4 border-teal-500">
+        <div class="card-body">
+          <div class="flex items-center">
+            <div class="rounded-md bg-teal-500 p-2 mr-4">
+              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Evaluaciones Pendientes</p>
+              <p class="text-xl font-semibold text-gray-900">{{ stats.pending_evaluations|default(0) }}</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a href="{{ url_for('checklists.index') }}" class="text-sm text-teal-700 hover:text-teal-600 font-medium">
+              Ir a listas de cotejo →
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Incidents -->
+    <div class="card bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-red-500">
+      <div class="card-body">
+        <div class="flex items-center">
+          <div class="rounded-md bg-red-500 p-2 mr-4">
+            <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-500">Incidencias Abiertas</p>
+            <p class="text-xl font-semibold text-gray-900">{{ stats.open_incidents|default(0) }}</p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="{{ url_for('incidents.index') }}" class="text-sm text-red-700 hover:text-red-600 font-medium">
+            Ver incidencias →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- For students: Teacher evaluations -->
+    {% if current_user.tipo_usuario == 'estudiante' %}
+      <div class="card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
+        <div class="card-body">
+          <div class="flex items-center">
+            <div class="rounded-md bg-green-500 p-2 mr-4">
+              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-500">Evaluación a Docentes</p>
+              <p class="text-xl font-semibold text-gray-900">
+                {{ stats.completed_teacher_evals|default(0) }}/{{ stats.total_teacher_evals|default(0) }}
+              </p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <a href="{{ url_for('student_evaluation.index') }}" class="text-sm text-green-700 hover:text-green-600 font-medium">
+              Completar evaluaciones →
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent activity and quick actions -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent activity -->
+    <div class="lg:col-span-2">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="text-xl font-semibold">Actividad Reciente</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+          {% if recent_activities %}
+            {% for activity in recent_activities %}
+              <div class="p-4">
+                <div class="flex">
+                  <div class="mr-4 flex-shrink-0">
+                    {% if activity.action == 'login' %}
+                      <svg class="h-6 w-6 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                    {% elif activity.action == 'logout' %}
+                      <svg class="h-6 w-6 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                    {% elif 'evaluation' in activity.action %}
+                      <svg class="h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    {% elif 'incident' in activity.action %}
+                      <svg class="h-6 w-6 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    {% else %}
+                      <svg class="h-6 w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    {% endif %}
+                  </div>
+                  <div>
+                    <p class="font-medium">{{ activity.description }}</p>
+                    <p class="text-sm text-gray-500">
+                      {{ activity.created_at.strftime('%d/%m/%Y %H:%M') }} | {{ activity.module }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="p-6 text-center text-gray-500">
+              No hay actividad reciente para mostrar.
+            </div>
+          {% endif %}
+        </div>
+        {% if recent_activities %}
+          <div class="card-footer text-right">
+            <a href="#" class="text-sm text-blue-800 hover:text-blue-600">Ver todo el historial →</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <h2 class="text-xl font-semibold">Acciones Rápidas</h2>
+        </div>
+        <div class="card-body space-y-4">
+          <a href="{{ url_for('self_evaluation.index') }}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            <div class="bg-blue-100 p-2 rounded-md mr-3">
+              <svg class="h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-medium">Realizar Autoevaluación</p>
+              <p class="text-sm text-gray-500">Evalúe su propio desempeño</p>
+            </div>
+          </a>
+          
+          <a href="{{ url_for('incidents.create') }}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            <div class="bg-red-100 p-2 rounded-md mr-3">
+              <svg class="h-5 w-5 text-red-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <p class="font-medium">Reportar Incidencia</p>
+              <p class="text-sm text-gray-500">Informar problemas o dificultades</p>
+            </div>
+          </a>
+          
+          {% if current_user.tipo_usuario == 'estudiante' %}
+            <a href="{{ url_for('student_evaluation.index') }}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+              <div class="bg-green-100 p-2 rounded-md mr-3">
+                <svg class="h-5 w-5 text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                  <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium">Evaluar Docentes</p>
+                <p class="text-sm text-gray-500">Evalúe a los docentes de sus cursos</p>
+              </div>
+            </a>
+          {% endif %}
+          
+          {% if user_has_permission('view_results') %}
+            <a href="{{ url_for('results.index') }}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+              <div class="bg-amber-100 p-2 rounded-md mr-3">
+                <svg class="h-5 w-5 text-amber-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium">Ver Resultados</p>
+                <p class="text-sm text-gray-500">Consultar resultados de evaluación</p>
+              </div>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Help card -->
+      <div class="card mt-6 bg-blue-50">
+        <div class="card-body">
+          <h3 class="text-lg font-semibold text-blue-800">¿Necesita ayuda?</h3>
+          <p class="text-sm text-blue-800 mb-4">Si tiene dudas sobre el uso del sistema, puede consultar la documentación o reportar una incidencia.</p>
+          <div class="flex space-x-2">
+            <a href="#" class="btn-outline text-sm">Ver ayuda</a>
+            <a href="{{ url_for('incidents.create') }}" class="btn-outline text-sm">Reportar problema</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Initialize any dashboard-specific JavaScript here
+  document.addEventListener('DOMContentLoaded', function() {
+    // Example: Auto-dismiss alerts after 5 seconds
+    setTimeout(function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function(alert) {
+        alert.classList.add('fade-in');
+        alert.style.opacity = '0';
+        setTimeout(function() {
+          alert.style.display = 'none';
+        }, 300);
+      });
+    }, 5000);
+  });
+</script>
+{% endblock %}

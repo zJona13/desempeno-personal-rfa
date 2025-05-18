@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - Sistema de Evaluación IES RFA{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center py-12">
+  <div class="max-w-md w-full space-y-8">
+    <div class="text-center">
+      <svg class="mx-auto h-16 w-16 text-blue-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        Iniciar Sesión
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Ingrese sus credenciales para acceder al Sistema de Evaluación
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form class="space-y-6" method="post" action="{{ url_for('auth.login') }}">
+          {{ form.csrf_token }}
+          
+          <div class="form-group">
+            {{ form.email.label(class="form-label") }}
+            {{ form.email(class="form-input", placeholder="correo@iesrfa.edu", autofocus=true) }}
+            {% if form.email.errors %}
+              <div class="text-red-600 text-sm mt-1">
+                {% for error in form.email.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="form-group">
+            <div class="flex items-center justify-between">
+              {{ form.password.label(class="form-label") }}
+              <a href="{{ url_for('auth.reset_password') }}" class="text-sm text-blue-800 hover:text-blue-600">
+                ¿Olvidó su contraseña?
+              </a>
+            </div>
+            {{ form.password(class="form-input", placeholder="••••••••") }}
+            {% if form.password.errors %}
+              <div class="text-red-600 text-sm mt-1">
+                {% for error in form.password.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="flex items-center">
+            <div>
+              {{ form.remember(class="form-checkbox") }}
+              {{ form.remember.label(class="ml-2 text-sm text-gray-600") }}
+            </div>
+          </div>
+          
+          <div>
+            {{ form.submit(class="btn-primary w-full") }}
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="text-center text-sm text-gray-600">
+      <p>Para soporte técnico, contacte al administrador del sistema</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

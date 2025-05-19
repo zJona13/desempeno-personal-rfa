@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Iniciar Sesión - IES RFA
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30 ">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-blue-500">I.E.S República Federal de Alemania</h2>
+            <p class="text-lg font-semibol">Sistema de Evaluación</p>
+        </div>
+
+        <div class="bg-background rounded-lg shadow-lg p-6 border">
+            <div class="w-full max-w-md space-y-8">
+                <div class="text-center">
+                    <h1 class="text-2xl font-bold">Iniciar Sesión</h1>
+                    <p class="text-sm text-muted-foreground mt-2">
+                        Ingrese sus credenciales para acceder al sistema
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-2 text-center text-sm">
+                    <p class="text-muted-foreground">Credenciales de demostración:</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="border border-gray-300 rounded-md py-1 hover:bg-gray-100 text-xs">Admin</button>
+                        <button class="border border-gray-300 rounded-md py-1 hover:bg-gray-100 text-xs">Docente</button>
+                        <button class="border border-gray-300 rounded-md py-1 hover:bg-gray-100 text-xs">Estudiante</button>
+                    </div>
+                </div>
+
+                <form action="#" method="POST" class="space-y-6">
+                    <div class="space-y-2">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+                        <input type="email" name="email" id="email" placeholder="correo@iesrfa.edu" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                            <a href="#" class="text-sm hover:underline focus:outline-none focus:underline text-blue-500">¿Olvidó su contraseña?</a>
+                        </div>
+                        <input type="password" name="password" id="password" required placeholder="********"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition">
+                        Iniciar sesión
+                    </button>
+
+                    <p class="text-center text-sm text-gray-600 mt-4">
+                        ¿No tiene una cuenta?
+                        <a href="#" class="text-blue-600 hover:underline">Registrarse</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <p class="text-sm text-gray-600">Sistema Integral de Evaluación IES RFA</p>
+            <p class="text-xs text-gray-500">© 2025 Todos los derechos reservados</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,12 +1,13 @@
 from flask import Flask, render_template
+from routes.route_sesion import ws_sesion
 
 app = Flask(__name__)
+app.register_blueprint(ws_sesion)
 
 @app.route('/')
 @app.route('/login')
 def home():
     return render_template('login.html')
-
 
 
 #Iniciar el servicio web con Flask

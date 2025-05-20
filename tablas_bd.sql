@@ -141,3 +141,14 @@ ALTER TABLE TIPO_REPORTE MODIFY idTipoReporte INT(10) NOT NULL AUTO_INCREMENT;
 ALTER TABLE REPORTE MODIFY idReporte INT(10) NOT NULL AUTO_INCREMENT;
 ALTER TABLE INCIDENCIA MODIFY idIncidencia INT(10) NOT NULL AUTO_INCREMENT;
 ALTER TABLE NOTIFICACION MODIFY idNotificacion INT(10) NOT NULL AUTO_INCREMENT;
+
+INSERT INTO TIPO_USUARIO (nombre) VALUES
+('Administrador'),
+('Docente'),
+('Evaluador'),
+('Estudiante'),
+('Developer');
+
+INSERT INTO USUARIO (nombre, correo, contrasena, vigencia, idTipoUsu) VALUES
+('Jonatan Ching', 'jching@iesrfa.edu', 'tiadmin45', 1, 5);
+('Roger Zavaleta', 'rzavaleta@iesrfa.edu', 'tiadmin45', 1, 5);

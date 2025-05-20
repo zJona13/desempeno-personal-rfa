@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Administrar Criterios de Evaluación{% endblock %}
+
+{% block content_with_sidebar %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Administrar Criterios de Evaluación</h1>
+    <p class="text-muted-foreground mt-2">
+      Añada, edite o elimine los criterios utilizados en las evaluaciones.
+    </p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {# Formulario para Crear o Editar Criterio #}
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm p-6">
+    <h2 class="text-xl font-semibold mb-4">
+      {% if criterion_to_edit %}Editar Criterio{% else %}Nuevo Criterio{% endif %}
+    </h2>
+    <form method="POST" action="{{ url_for('admin.manage_criteria') }}" class="space-y-4">
+      <input type="hidden" name="action" value="{{ 'update' if criterion_to_edit else 'create' }}">
+      {% if criterion_to_edit %}
+      <input type="hidden" name="criterion_id" value="{{ criterion_to_edit.idCriterio }}">
+      {% endif %}
+
+      <div>
+        <label for="nombre" class="block text-sm font-medium text-muted-foreground mb-1">Nombre del Criterio <span class="text-destructive">*</span></label>
+        <input type="text" name="nombre" id="nombre" required
+               value="{{ criterion_to_edit.nombre if criterion_to_edit else '' }}"
+               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+      </div>
+
+      <div>
+        <label for="descripcion" class="block text-sm font-medium text-muted-foreground mb-1">Descripción (Opcional)</label>
+        <textarea name="descripcion" id="descripcion" rows="3"
+                  class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y">{{ criterion_to_edit.descripcion if criterion_to_edit else '' }}</textarea>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label for="valor" class="block text-sm font-medium text-muted-foreground mb-1">Valor (Puntaje Máximo - Opcional)</label>
+            <input type="number" name="valor" id="valor"
+                   value="{{ criterion_to_edit.valor if criterion_to_edit and criterion_to_edit.valor is not none else '' }}"
+                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+        </div>
+        <div class="flex items-end">
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" name="vigencia" id="vigencia" 
+                       class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                       {% if criterion_to_edit and criterion_to_edit.vigencia == 1 %}checked{% elif not criterion_to_edit %}checked{% endif %}>
+                <label for="vigencia" class="text-sm font-medium text-muted-foreground">Vigente</label>
+            </div>
+        </div>
+      </div>
+
+
+      <div class="flex justify-end space-x-3">
+        {% if criterion_to_edit %}
+        <a href="{{ url_for('admin.manage_criteria') }}"
+           class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+          Cancelar Edición
+        </a>
+        {% endif %}
+        <button type="submit"
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+          {% if criterion_to_edit %}Actualizar Criterio{% else %}Guardar Criterio{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {# Tabla de Criterios Existentes #}
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm mt-8">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold mb-4">Criterios Existentes</h2>
+      {% if criteria_list %}
+      <div class="relative w-full overflow-auto">
+        <table class="w-full caption-bottom text-sm">
+          <thead class="[&_tr]:border-b">
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+              <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nombre</th>
+              <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground hidden md:table-cell">Descripción</th>
+              <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Valor</th>
+              <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Vigencia</th>
+              <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="[&_tr:last-child]:border-0">
+            {% for criterion in criteria_list %}
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+              <td class="p-4 align-middle font-medium">{{ criterion.nombre }}</td>
+              <td class="p-4 align-middle hidden md:table-cell">{{ criterion.descripcion | truncate(80, true) if criterion.descripcion else '-' }}</td>
+              <td class="p-4 align-middle text-center">{{ criterion.valor if criterion.valor is not none else '-' }}</td>
+              <td class="p-4 align-middle text-center">
+                {% if criterion.vigencia == 1 %}
+                <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-100 text-green-700">Vigente</span>
+                {% else %}
+                <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-red-100 text-red-700">No Vigente</span>
+                {% endif %}
+              </td>
+              <td class="p-4 align-middle text-right">
+                <div class="flex justify-end gap-2">
+                  <a href="{{ url_for('admin.edit_criterion_form', criterion_id=criterion.idCriterio) }}"
+                     class="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 text-muted-foreground hover:text-foreground">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
+                  </a>
+                  <form method="POST" action="{{ url_for('admin.delete_criterion', criterion_id=criterion.idCriterio) }}" onsubmit="return confirm('¿Está seguro de que desea eliminar este criterio?');" class="inline">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9 text-muted-foreground hover:text-destructive">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted-foreground text-center py-4">No hay criterios registrados.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

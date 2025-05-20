@@ -1,0 +1,54 @@
+{# templates/partials/_header.html #}
+<header class="fixed top-0 left-0 right-0 z-50 h-16 bg-card border-b shadow-sm">
+    <div class="container mx-auto h-full flex items-center justify-between px-4 md:px-6">
+        <div class="flex items-center">
+            <button id="open-sidebar-button" type="button"
+                class="md:hidden p-2 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                <svg id="open-sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="3" x2="21" y1="6" y2="6"></line><line x1="3" x2="21" y1="12" y2="12"></line><line x1="3" x2="21" y1="18" y2="18"></line></svg>
+                <svg id="close-sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 hidden"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+                <span class="sr-only">Abrir menú</span>
+            </button>
+            <a href="{{ url_for('main.dashboard') }}" class="text-xl font-semibold ml-2 md:ml-0">
+                IES RFA Eval
+            </a>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button id="theme-toggle-button" type="button" class="p-2 rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 hidden"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+                <span class="sr-only">Cambiar tema</span>
+            </button>
+            <div class="relative">
+                <button type="button" id="user-menu-button" class="flex items-center space-x-2 p-2 rounded-full hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring">
+                    <img src="{{ url_for('static', filename='images/placeholder-avatar.png') }}" 
+                         alt="Avatar" 
+                         class="h-8 w-8 rounded-full border object-cover"> {# <--- AÑADIDO object-cover #}
+                    <span class="hidden md:inline text-sm font-medium text-muted-foreground">{{ session.get('user_name', 'Usuario') }}</span>
+                </button>
+                 <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 bg-card rounded-md shadow-lg py-1 border hidden z-50">
+                    <a href="#" class="block px-4 py-2 text-sm text-muted-foreground hover:bg-accent">Mi Perfil</a>
+                    <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-muted-foreground hover:bg-accent">Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<script>
+    // Script para el dropdown del menú de usuario
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenuDropdown = document.getElementById('user-menu-dropdown');
+    if (userMenuButton && userMenuDropdown) {
+        userMenuButton.addEventListener('click', (event) => {
+            event.stopPropagation(); 
+            userMenuDropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', (event) => {
+            if (userMenuDropdown && !userMenuDropdown.classList.contains('hidden')) {
+                if (!userMenuButton.contains(event.target) && !userMenuDropdown.contains(event.target)) {
+                    userMenuDropdown.classList.add('hidden');
+                }
+            }
+        });
+    }
+</script>

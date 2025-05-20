@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }} - Administración{% endblock %}
+
+{% block content_with_sidebar %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">{{ form_title }}</h1>
+    <p class="text-muted-foreground mt-2">
+      Complete los datos del colaborador y su contrato.
+    </p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" 
+        action="{{ url_for('admin.edit_collaborator', collaborator_id=collaborator.idColaborador) if collaborator else url_for('admin.new_collaborator') }}" 
+        class="bg-card text-card-foreground rounded-lg border shadow-sm p-6 space-y-6">
+    
+    {# --- Datos Personales del Colaborador --- #}
+    <section class="space-y-4">
+      <h2 class="text-xl font-semibold border-b pb-2">Datos Personales</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="nombres" class="block text-sm font-medium text-muted-foreground mb-1">Nombres <span class="text-destructive">*</span></label>
+          <input type="text" name="nombres" id="nombres" required
+                 value="{{ collaborator.nombres if collaborator else form_data.nombres if form_data else '' }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label for="apePat" class="block text-sm font-medium text-muted-foreground mb-1">Apellido Paterno <span class="text-destructive">*</span></label>
+          <input type="text" name="apePat" id="apePat" required
+                 value="{{ collaborator.apePat if collaborator else form_data.apePat if form_data else '' }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label for="apeMat" class="block text-sm font-medium text-muted-foreground mb-1">Apellido Materno</label>
+          <input type="text" name="apeMat" id="apeMat"
+                 value="{{ collaborator.apeMat if collaborator else form_data.apeMat if form_data else '' }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="dni" class="block text-sm font-medium text-muted-foreground mb-1">DNI <span class="text-destructive">*</span></label>
+          <input type="text" name="dni" id="dni" required maxlength="8"
+                 value="{{ collaborator.dni if collaborator else form_data.dni if form_data else '' }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label for="fechaNacimiento" class="block text-sm font-medium text-muted-foreground mb-1">Fecha de Nacimiento</label>
+          <input type="date" name="fechaNacimiento" id="fechaNacimiento"
+                 value="{{ (collaborator.fechaNacimiento.strftime('%Y-%m-%d') if collaborator and collaborator.fechaNacimiento else form_data.fechaNacimiento) if form_data else (collaborator.fechaNacimiento.strftime('%Y-%m-%d') if collaborator and collaborator.fechaNacimiento else '') }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label for="telefono" class="block text-sm font-medium text-muted-foreground mb-1">Teléfono</label>
+          <input type="tel" name="telefono" id="telefono"
+                 value="{{ collaborator.telefono if collaborator else form_data.telefono if form_data else '' }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+      </div>
+      <div>
+        <label for="direccion" class="block text-sm font-medium text-muted-foreground mb-1">Dirección</label>
+        <input type="text" name="direccion" id="direccion"
+               value="{{ collaborator.direccion if collaborator else form_data.direccion if form_data else '' }}"
+               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+      </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label for="idTipoColab" class="block text-sm font-medium text-muted-foreground mb-1">Tipo de Colaborador <span class="text-destructive">*</span></label>
+            <select name="idTipoColab" id="idTipoColab" required
+                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                <option value="">Seleccione...</option>
+                {% for type in collaborator_types %}
+                <option value="{{ type.idTipoColab }}" 
+                        {% if collaborator and collaborator.idTipoColab == type.idTipoColab %}selected{% endif %}
+                        {% if form_data and form_data.idTipoColab|int == type.idTipoColab %}selected{% endif %}>
+                    {{ type.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+          <label for="estado_colaborador" class="block text-sm font-medium text-muted-foreground mb-1">Estado del Colaborador</label>
+          <select name="estado_colaborador" id="estado_colaborador"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option value="1" {% if collaborator and collaborator.estado_colaborador == 1 %}selected{% elif not collaborator and (not form_data or form_data.estado_colaborador == '1') %}selected{% endif %}>Activo</option>
+              <option value="0" {% if collaborator and collaborator.estado_colaborador == 0 %}selected{% elif form_data and form_data.estado_colaborador == '0' %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    {# --- Datos del Contrato --- #}
+    <section class="space-y-4">
+      <h2 class="text-xl font-semibold border-b pb-2">Datos del Contrato</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="idTipoContrato" class="block text-sm font-medium text-muted-foreground mb-1">Tipo de Contrato <span class="text-destructive">*</span></label>
+          <select name="idTipoContrato" id="idTipoContrato" required
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option value="">Seleccione...</option>
+              {% for type in contract_types %}
+              <option value="{{ type.idTipoContrato }}"
+                      {% if collaborator and collaborator.idTipoContrato == type.idTipoContrato %}selected{% endif %}
+                      {% if form_data and form_data.idTipoContrato|int == type.idTipoContrato %}selected{% endif %}>
+                {{ type.nombre }}
+              </option>
+              {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="modalidadContrato" class="block text-sm font-medium text-muted-foreground mb-1">Modalidad <span class="text-destructive">*</span></label>
+          <input type="text" name="modalidadContrato" id="modalidadContrato" required
+                 value="{{ collaborator.modalidad if collaborator else form_data.modalidadContrato if form_data else '' }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label for="estado_contrato" class="block text-sm font-medium text-muted-foreground mb-1">Estado del Contrato</label>
+          <select name="estado_contrato" id="estado_contrato"
+                  class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+              <option value="1" {% if collaborator and collaborator.estado_contrato == 1 %}selected{% elif not collaborator and (not form_data or form_data.estado_contrato == '1') %}selected{% endif %}>Activo</option>
+              <option value="0" {% if collaborator and collaborator.estado_contrato == 0 %}selected{% elif form_data and form_data.estado_contrato == '0' %}selected{% endif %}>Inactivo/Finalizado</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label for="fechaInicioContrato" class="block text-sm font-medium text-muted-foreground mb-1">Fecha de Inicio <span class="text-destructive">*</span></label>
+          <input type="date" name="fechaInicioContrato" id="fechaInicioContrato" required
+                 value="{{ (collaborator.fechaInicio.strftime('%Y-%m-%d') if collaborator and collaborator.fechaInicio else form_data.fechaInicioContrato) if form_data else (collaborator.fechaInicio.strftime('%Y-%m-%d') if collaborator and collaborator.fechaInicio else '') }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label for="fechaFinContrato" class="block text-sm font-medium text-muted-foreground mb-1">Fecha de Fin (Opcional)</label>
+          <input type="date" name="fechaFinContrato" id="fechaFinContrato"
+                 value="{{ (collaborator.fechaFin.strftime('%Y-%m-%d') if collaborator and collaborator.fechaFin else form_data.fechaFinContrato) if form_data else (collaborator.fechaFin.strftime('%Y-%m-%d') if collaborator and collaborator.fechaFin else '') }}"
+                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+        </div>
+      </div>
+    </section>
+
+    {# --- Vinculación con Usuario (Opcional, si se implementa) --- #}
+    {# 
+    <section class="space-y-4">
+      <h2 class="text-xl font-semibold border-b pb-2">Cuenta de Usuario (Opcional)</h2>
+      <div>
+        <label for="idUsuario" class="block text-sm font-medium text-muted-foreground mb-1">Vincular a Usuario Existente</label>
+        <select name="idUsuario" id="idUsuario"
+                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+            <option value="">Ninguno / No vincular</option>
+            {# {% for user_acc in users_list %}
+            <option value="{{ user_acc.idUsuario }}" {% if collaborator and collaborator.idUsuario == user_acc.idUsuario %}selected{% endif %}>
+                {{ user_acc.nombre }} ({{ user_acc.correo }})
+            </option>
+            {% endfor %} #}
+        </select>
+        <p class="text-xs text-muted-foreground mt-1">Si este colaborador necesita acceso al sistema (ej. para autoevaluación), vincúlelo a una cuenta de usuario.</p>
+      </div>
+    </section> 
+    #}
+
+    <div class="flex justify-end space-x-3 pt-4">
+      <a href="{{ url_for('admin.manage_collaborators') }}"
+         class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium border border-input bg-background hover:bg-accent h-10 px-4 py-2">
+        Cancelar
+      </a>
+      <button type="submit"
+              class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+        Guardar Colaborador
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

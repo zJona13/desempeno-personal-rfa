@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Administrar Tipos de Colaborador{% endblock %}
+
+{% block content_with_sidebar %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Administrar Tipos de Colaborador</h1>
+    <p class="text-muted-foreground mt-2">
+      Defina las categorías para el personal (ej: Docente, Administrativo).
+    </p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm p-6">
+    <h2 class="text-xl font-semibold mb-4">
+      {% if type_to_edit %}Editar Tipo de Colaborador{% else %}Nuevo Tipo de Colaborador{% endif %}
+    </h2>
+    <form method="POST" action="{{ url_for('admin.manage_collaborator_types') }}" class="space-y-4">
+      <input type="hidden" name="action" value="{{ 'update' if type_to_edit else 'create' }}">
+      {% if type_to_edit %}
+      <input type="hidden" name="type_id" value="{{ type_to_edit.idTipoColab }}">
+      {% endif %}
+
+      <div>
+        <label for="nombre" class="block text-sm font-medium text-muted-foreground mb-1">Nombre del Tipo <span class="text-destructive">*</span></label>
+        <input type="text" name="nombre" id="nombre" required
+               value="{{ type_to_edit.nombre if type_to_edit else '' }}"
+               class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+      </div>
+
+      <div class="flex justify-end space-x-3">
+        {% if type_to_edit %}
+        <a href="{{ url_for('admin.manage_collaborator_types') }}"
+           class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium border border-input bg-background hover:bg-accent h-10 px-4 py-2">
+          Cancelar Edición
+        </a>
+        {% endif %}
+        <button type="submit"
+                class="inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+          {% if type_to_edit %}Actualizar Tipo{% else %}Guardar Tipo{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm mt-8">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold mb-4">Tipos Existentes</h2>
+      {% if types_list %}
+      <div class="relative w-full overflow-auto">
+        <table class="w-full caption-bottom text-sm">
+          <thead class="[&_tr]:border-b">
+            <tr class="border-b hover:bg-muted/50">
+              <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">ID</th>
+              <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nombre</th>
+              <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="[&_tr:last-child]:border-0">
+            {% for type_item in types_list %}
+            <tr class="border-b hover:bg-muted/50">
+              <td class="p-4 align-middle font-medium">{{ type_item.idTipoColab }}</td>
+              <td class="p-4 align-middle">{{ type_item.nombre }}</td>
+              <td class="p-4 align-middle text-right">
+                <div class="flex justify-end gap-2">
+                  <a href="{{ url_for('admin.edit_collaborator_type_form', type_id=type_item.idTipoColab) }}"
+                     class="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent h-9 w-9">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
+                  </a>
+                  <form method="POST" action="{{ url_for('admin.delete_collaborator_type', type_id=type_item.idTipoColab) }}" onsubmit="return confirm('¿Está seguro?');" class="inline">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-destructive h-9 w-9">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted-foreground text-center py-4">No hay tipos de colaborador registrados.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 # app/routes/main.py
-from flask import Blueprint, render_template, session, redirect, url_for, request, flash # Asegúrate que flash esté importado
+from flask import Blueprint, render_template, session, redirect, url_for, request, flash
+from app.models.dashboard_data import DashboardData # Asegúrate que flash esté importado
 import datetime
 
 main_bp = Blueprint('main', __name__)
@@ -16,22 +17,30 @@ def dashboard():
         flash('Debes iniciar sesión para acceder a esta página.', 'info')
         return redirect(url_for('auth.login')) 
 
+    user_id = session.get('user_id')
+    user_role_id = session.get('user_role_id')
     user_name = session.get('user_name', 'Usuario')
     greeting = "Hola" 
 
+    # Obtener datos reales usando el modelo
+    eval_pend_count = DashboardData.get_evaluaciones_pendientes_count(user_id, user_role_id)
+    incid_activas_count = DashboardData.get_incidencias_activas_count()
+    valid_pend_count = DashboardData.get_validaciones_pendientes_count(user_role_id) # Pasa user_role_id
+    total_res_count = DashboardData.get_total_resultados_count()
+
     stats = {
-        "evaluaciones_pendientes": 5, 
-        "trend_evaluaciones": {"is_positive": True, "value": 10},
-        "incidencias_activas": 2,
-        "trend_incidencias": {"is_positive": False, "value": 5}, 
-        "validaciones_pendientes": 3,
-        "total_resultados": 150,
-        "trend_resultados": {"is_positive": True, "value": 12}
+        "evaluaciones_pendientes": eval_pend_count,
+        # Las tendencias se omiten por ahora, puedes poner valores placeholder o None
+        "trend_evaluaciones": None, # {"is_positive": True, "value": 10}, 
+        "incidencias_activas": incid_activas_count,
+        "trend_incidencias": None, # {"is_positive": False, "value": 5}, 
+        "validaciones_pendientes": valid_pend_count,
+        "total_resultados": total_res_count,
+        "trend_resultados": None # {"is_positive": True, "value": 12}
     }
     
-    user_role_id = session.get('user_role_id')
+    # La lógica de 'modules' se mantiene igual, ya que depende del rol y genera los url_for
     modules = []
-    
     if user_role_id == 1 or user_role_id == 5: # Admin o Developer
         modules = [
             {"title": "Autoevaluación Personal", "description": "Complete o revise su autoevaluación.", "href": url_for('main.self_evaluation'), "icon_svg_name": "user-square-2", "color": "bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-blue-200"},
@@ -52,6 +61,7 @@ def dashboard():
              {"title": "Evaluación Docente", "description": "Evalúe el desempeño de sus docentes.", "href": url_for('main.student_evaluation'), "icon_svg_name": "clipboard-list", "color": "bg-green-100 text-green-600 dark:bg-green-700 dark:text-green-200"},
              {"title": "Gestión de Incidencias", "description": "Registre y siga las incidencias.", "href": url_for('main.incidents'), "icon_svg_name": "alert-circle", "color": "bg-yellow-100 text-yellow-600 dark:bg-yellow-700 dark:text-yellow-200"},
         ]
+
 
     return render_template('dashboard.html', greeting=greeting, user_name=user_name, stats=stats, modules=modules)
 

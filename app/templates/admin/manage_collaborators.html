@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Administrar Colaboradores{% endblock %}
+
+{% block content_with_sidebar %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Administrar Colaboradores</h1>
+      <p class="text-muted-foreground mt-2">
+        Gestione el personal de la institución.
+      </p>
+    </div>
+    <a href="{{ url_for('admin.new_collaborator') }}"
+       class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Nuevo Colaborador
+    </a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+    <div class="p-6">
+      <h2 class="text-xl font-semibold mb-4">Lista de Colaboradores</h2>
+      {% if collaborators_list %}
+      <div class="relative w-full overflow-auto">
+        <table class="w-full caption-bottom text-sm">
+          <thead class="[&_tr]:border-b">
+            <tr class="border-b hover:bg-muted/50">
+              <th class="h-12 px-3 text-left align-middle font-medium text-muted-foreground">Nombre Completo</th>
+              <th class="h-12 px-3 text-left align-middle font-medium text-muted-foreground hidden md:table-cell">DNI</th>
+              <th class="h-12 px-3 text-left align-middle font-medium text-muted-foreground hidden lg:table-cell">Tipo Colab.</th>
+              <th class="h-12 px-3 text-left align-middle font-medium text-muted-foreground hidden lg:table-cell">Contrato</th>
+              <th class="h-12 px-3 text-center align-middle font-medium text-muted-foreground hidden md:table-cell">Estado</th>
+              <th class="h-12 px-3 text-right align-middle font-medium text-muted-foreground">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="[&_tr:last-child]:border-0">
+            {% for colab in collaborators_list %}
+            <tr class="border-b hover:bg-muted/50">
+              <td class="p-3 align-middle font-medium">{{ colab.nombres }} {{ colab.apePat }} {{ colab.apeMat }}</td>
+              <td class="p-3 align-middle hidden md:table-cell">{{ colab.dni }}</td>
+              <td class="p-3 align-middle hidden lg:table-cell">{{ colab.tipo_colaborador_nombre | default('-', true) }}</td>
+              <td class="p-3 align-middle hidden lg:table-cell">
+                {{ colab.tipo_contrato_nombre | default('-', true) }}
+                {% if colab.fechaInicio and colab.fechaFin %}
+                  <span class="block text-xs text-muted-foreground">
+                    {{ colab.fechaInicio.strftime('%d/%m/%Y') if colab.fechaInicio else '' }} - 
+                    {{ colab.fechaFin.strftime('%d/%m/%Y') if colab.fechaFin else 'Indef.' }}
+                  </span>
+                {% endif %}
+              </td>
+              <td class="p-3 align-middle text-center hidden md:table-cell">
+                {% if colab.estado_colaborador == 1 %}
+                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700">Activo</span>
+                {% else %}
+                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold bg-red-100 text-red-700">Inactivo</span>
+                {% endif %}
+              </td>
+              <td class="p-3 align-middle text-right">
+                <div class="flex justify-end gap-2">
+                  <a href="{{ url_for('admin.edit_collaborator', collaborator_id=colab.idColaborador) }}"
+                     class="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent h-9 w-9">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
+                  </a>
+                  {# El delete ahora es "inactivar" en el modelo #}
+                  <form method="POST" action="{{ url_for('admin.delete_collaborator', collaborator_id=colab.idColaborador) }}" onsubmit="return confirm('¿Está seguro de inactivar este colaborador?');" class="inline">
+                    <button type="submit" class="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-destructive h-9 w-9">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted-foreground text-center py-4">No hay colaboradores registrados.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

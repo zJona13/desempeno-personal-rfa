@@ -2,7 +2,7 @@
 
 {% block title %}Iniciar Sesión - Sistema de Evaluación IES RFA{% endblock %}
 
-{% block content %}
+{% block content_without_sidebar %} {# <--- CHANGE HERE #}
 <div class="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30">
   <div class="w-full max-w-md">
     <div class="text-center mb-8">
@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        <form method="POST" action="{{ url_for('home') }}" class="space-y-6">
+        <form method="POST" action="{{ url_for('login') }}" class="space-y-6"> {# Corrected action to 'login' as per app.py #}
           {# Add CSRF token if you are using Flask-WTF or similar #}
           {# {{ form.csrf_token }} #}
           
@@ -102,20 +102,14 @@
             type="submit" 
             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
             aria-label="Iniciar sesión"
-            {# Add disabled and loading state via JS if needed, e.g., using a little Alpine.js or vanilla JS #}
           >
-            {# isLoading state would be managed by client-side JS if desired for immediate feedback #}
             Iniciar sesión
-            {# 
-            <span class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
-            Iniciando sesión... 
-            #}
           </button>
 
           <p class="text-center text-sm">
             ¿No tiene una cuenta?
             <a 
-              href="{{ url_for('static', filename='register.html') }}"
+              href="{{ url_for('register') }}" {# Corrected to use url_for for register #}
               class="text-primary hover:underline focus:outline-none focus:underline"
             >
               Registrarse

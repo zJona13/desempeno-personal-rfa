@@ -1,0 +1,44 @@
+{% extends "base.html" %} {# Or your main base.html if it's suitable #}
+
+{% block title %}Página no Encontrada{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+  <div class="text-center">
+    <h1 class="text-6xl font-bold text-primary mb-4">404</h1>
+    <p class="text-2xl text-gray-700 dark:text-gray-300 mb-4">¡Ups! Página no encontrada</p>
+    <p class="text-gray-500 dark:text-gray-400 mb-8">
+      Lo sentimos, la página que estás buscando no existe o ha sido movida.
+    </p>
+    <a href="{{ url_for('main.index') }}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+      Volver al Inicio
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{# If using base_minimal.html, it would be a very simple version of base.html without sidebar/header #}
+{# Example app/templates/base_minimal.html:
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Error{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dist/output.css') }}">
+</head>
+<body class="bg-background text-foreground">
+    {% block content %}{% endblock %}
+    <script>
+        // Basic theme toggling logic (copied from base.html if needed for standalone error pages)
+        const htmlElement = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (savedTheme === 'dark') {
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+        }
+    </script>
+</body>
+</html>
+#}

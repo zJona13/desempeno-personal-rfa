@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Validación de Evaluaciones - Sistema de Evaluación IES RFA{% endblock %}
+
+{% from "roles/index.html" import icon %} {# Reuse icon macro if in separate file or define here #}
+
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Validación de Evaluaciones</h1>
+    <p class="text-muted-foreground mt-2">
+      Revise y valide las evaluaciones enviadas por el personal y evaluadores.
+    </p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="space-y-4">
+    <h2 class="text-xl font-medium">Autoevaluaciones pendientes</h2>
+    {% if autoevaluaciones_pendientes %}
+    <div class="grid gap-4 md:grid-cols-2">
+      {% for eval_item in autoevaluaciones_pendientes %}
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex flex-col space-y-1.5 p-6 pb-2"> {# CardHeader #}
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ eval_item.name }}</h3> {# CardTitle #}
+            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">{{ eval_item.type }}</span>
+          </div>
+          <p class="text-sm text-muted-foreground">{{ eval_item.role_department }}</p> {# CardDescription #}
+        </div>
+        <div class="p-6 pt-0"> {# CardContent #}
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-muted-foreground">Enviado: {{ eval_item.submitted_date }}</p>
+            <a href="{{ url_for('evaluations.review_evaluation_for_validation', evaluation_id=eval_item.id) }}" 
+               class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">Revisar</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="text-muted-foreground">No hay autoevaluaciones pendientes de validación.</p>
+    {% endif %}
+
+    <h2 class="text-xl font-medium mt-6">Listas de cotejo pendientes</h2>
+    {% if listas_cotejo_pendientes %}
+    <div class="grid gap-4 md:grid-cols-2">
+      {% for eval_item in listas_cotejo_pendientes %}
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex flex-col space-y-1.5 p-6 pb-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ eval_item.name }}</h3>
+            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">{{ eval_item.type }}</span>
+          </div>
+          <p class="text-sm text-muted-foreground">Evaluado por: {{ eval_item.evaluated_by }}</p>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="flex justify-between items-center mt-2">
+            <p class="text-sm text-muted-foreground">Enviado: {{ eval_item.submitted_date }}</p>
+            <a href="{{ url_for('evaluations.review_evaluation_for_validation', evaluation_id=eval_item.id) }}" 
+               class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">Revisar</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="text-muted-foreground">No hay listas de cotejo pendientes de validación.</p>
+    {% endif %}
+
+    <h2 class="text-xl font-medium mt-6">Validaciones recientes</h2>
+    {% if validaciones_recientes %}
+    <div class="grid gap-4 md:grid-cols-2">
+      {% for val_item in validaciones_recientes %}
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+        <div class="flex flex-col space-y-1.5 p-6 pb-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ val_item.name }}</h3>
+            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground {{ val_item.status_color_class }}">
+              {{ icon(val_item.status_icon) }} {{ val_item.status }}
+            </span>
+          </div>
+          <p class="text-sm text-muted-foreground">{{ val_item.type }} · Validado: {{ val_item.validated_date }}</p>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="flex justify-between items-center mt-2">
+            {% if val_item.score %}
+            <p class="text-sm text-muted-foreground">Calificación: {{ val_item.score }}</p>
+            {% elif val_item.observations is not none %}
+            <p class="text-sm text-muted-foreground">Observaciones: {{ val_item.observations }}</p>
+            {% endif %}
+            <a href="{{ url_for('evaluations.view_validation_details', validation_id=val_item.id) }}" 
+               class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+              Ver detalles
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+     {% else %}
+      <p class="text-muted-foreground">No hay validaciones recientes.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

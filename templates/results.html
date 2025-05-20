@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Resultados de Evaluaciones - Sistema de Evaluación IES RFA{% endblock %}
+
+{% macro icon(name, extra_classes="") %}
+    {% if name == 'download' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+    {% elif name == 'area-chart' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><path d="M3 3v18h18"></path><path d="M21 12V4H3l9 9 3.5-3.5L21 12z"></path></svg>
+    {% elif name == 'bar-chart-2' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>
+    {% endif %}
+{% endmacro %}
+
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Resultados de Evaluaciones</h1>
+      <p class="text-muted-foreground mt-2">
+        Consulte los resultados consolidados de las evaluaciones realizadas.
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{{ url_for('results.download_results_report', report_type='pdf') }}" class="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+        {{ icon('download') }} PDF
+      </a>
+      <a href="{{ url_for('results.download_results_report', report_type='excel') }}" class="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+        {{ icon('download') }} Excel
+      </a>
+    </div>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+      <div class="flex flex-col space-y-1.5 p-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-2xl font-semibold leading-none tracking-tight">Autoevaluación Personal</h3>
+          <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-muted-foreground">
+            {{ icon('area-chart') }}
+          </button>
+        </div>
+        <p class="text-sm text-muted-foreground">Periodo 2025-I</p>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="h-[200px] flex items-center justify-center border border-dashed rounded-md">
+          <p class="text-muted-foreground">
+            Gráfico de resultados de autoevaluación personal (Implementar con Chart.js, Plotly, etc.)
+          </p>
+          {# Example for Chart.js: <canvas id="autoevaluacionChart"></canvas> #}
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+      <div class="flex flex-col space-y-1.5 p-6">
+        <div class="flex items-center justify-between">
+          <h3 class="text-2xl font-semibold leading-none tracking-tight">Evaluación por Estudiantes</h3>
+          <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-muted-foreground">
+            {{ icon('bar-chart-2') }}
+          </button>
+        </div>
+        <p class="text-sm text-muted-foreground">Periodo 2025-I</p>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="h-[200px] flex items-center justify-center border border-dashed rounded-md">
+          <p class="text-muted-foreground">
+            Gráfico de resultados de evaluación por estudiantes (Implementar con Chart.js, Plotly, etc.)
+          </p>
+          {# Example for Chart.js: <canvas id="estudiantesChart"></canvas> #}
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-card text-card-foreground rounded-lg border shadow-sm md:col-span-2">
+      <div class="flex flex-col space-y-1.5 p-6">
+        <h3 class="text-2xl font-semibold leading-none tracking-tight">Resumen Consolidado</h3>
+        <p class="text-sm text-muted-foreground">Resultados agregados por categoría</p>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 border rounded-md">
+              <h3 class="font-medium">Categoría: Pedagógico</h3>
+              <p class="text-2xl font-bold {{ summary.pedagogico.text_color }} mt-2">{{ summary.pedagogico.score_percent }}%</p>
+              <p class="text-sm text-muted-foreground">Puntuación promedio</p>
+            </div>
+            <div class="p-4 border rounded-md">
+              <h3 class="font-medium">Categoría: Académico</h3>
+              <p class="text-2xl font-bold {{ summary.academico.text_color }} mt-2">{{ summary.academico.score_percent }}%</p>
+              <p class="text-sm text-muted-foreground">Puntuación promedio</p>
+            </div>
+            <div class="p-4 border rounded-md">
+              <h3 class="font-medium">Categoría: Gestión</h3>
+              <p class="text-2xl font-bold {{ summary.gestion.text_color }} mt-2">{{ summary.gestion.score_percent }}%</p>
+              <p class="text-sm text-muted-foreground">Puntuación promedio</p>
+            </div>
+            <div class="p-4 border rounded-md">
+              <h3 class="font-medium">Puntuación Global</h3>
+              <p class="text-2xl font-bold {{ summary.global.text_color }} mt-2">{{ summary.global.score_percent }}%</p>
+              <p class="text-sm text-muted-foreground">Total consolidado</p>
+            </div>
+          </div>
+          <a href="{{ url_for('results.view_detailed_report') }}"
+             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+            Ver informe detallado
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Add script tags for your chosen charting library here if using client-side JS charts #}
+{# Example: <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> #}
+{# <script>
+  // Example: Initialize Chart.js charts here with data passed from Flask
+  // const autoevaluacionData = {{ chart_data_autoevaluacion | tojson }};
+  // const estudiantesData = {{ chart_data_estudiantes | tojson }};
+  // new Chart(document.getElementById('autoevaluacionChart'), {...});
+  // new Chart(document.getElementById('estudiantesChart'), {...});
+</script> #}
+{% endblock %}

@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Administración de Roles y Permisos - Sistema de Evaluación IES RFA{% endblock %}
+
+{# Icon Macro (Simplified - ideally use SVG includes or a better system) #}
+{% macro icon(name, extra_classes="") %}
+    {% if name == 'users' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+    {% elif name == 'user-cog' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><circle cx="18" cy="15" r="3"></circle><circle cx="9" cy="7" r="4"></circle><path d="M12 22v-2"></path><path d="M12 12v-2"></path><path d="M21.17 18.83a4 4 0 0 0-5.17-5.17"></path><path d="M6 21v-2a4 4 0 0 1 4-4h1"></path></svg>
+    {% elif name == 'shield-check' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>
+    {% elif name == 'search' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground {{ extra_classes }}"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+    {% elif name == 'plus-circle' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1 {{ extra_classes }}"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="16"></line><line x1="8" x2="16" y1="12" y2="12"></line></svg>
+    {% elif name == 'pencil' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
+    {% elif name == 'trash-2' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 {{ extra_classes }}"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+    {% elif name == 'check-circle-2' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 mr-1 {{ extra_classes }}"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+    {% elif name == 'x-circle' %}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 mr-1 {{ extra_classes }}"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Administración de Roles y Permisos</h1>
+    <p class="text-muted-foreground mt-2">
+      Gestione los roles de usuario y sus permisos en el sistema
+    </p>
+  </div>
+
+  {# Flash messages #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="space-y-4" id="tabs-container">
+    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+      {# Tabs List #}
+      <div class="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+        <a href="{{ url_for('admin.manage_roles', tab='roles', q=search_query) }}" data-tab="roles"
+           class="tab-trigger inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {% if active_tab == 'roles' %}bg-background text-foreground shadow-sm{% endif %}">
+          {{ icon('users') }} <span class="ml-1">Roles</span>
+        </a>
+        <a href="{{ url_for('admin.manage_roles', tab='users', q=search_query) }}" data-tab="users"
+           class="tab-trigger inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {% if active_tab == 'users' %}bg-background text-foreground shadow-sm{% endif %}">
+           {{ icon('user-cog') }} <span class="ml-1">Usuarios</span>
+        </a>
+        <a href="{{ url_for('admin.manage_roles', tab='permissions', q=search_query) }}" data-tab="permissions"
+           class="tab-trigger inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 {% if active_tab == 'permissions' %}bg-background text-foreground shadow-sm{% endif %}">
+           {{ icon('shield-check') }} <span class="ml-1">Permisos</span>
+        </a>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <form method="GET" action="{{ url_for('admin.manage_roles') }}" class="relative w-full md:w-auto">
+          <input type="hidden" name="tab" value="{{ active_tab }}">
+          {{ icon('search') }}
+          <input 
+            type="search"
+            name="q"
+            placeholder="Buscar..." 
+            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm pl-8 pr-4"
+            value="{{ search_query }}"
+          />
+        </form>
+        {% if active_tab == 'roles' %}
+          <button type="button" onclick="document.getElementById('addRoleDialog').classList.remove('hidden');" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 whitespace-nowrap">
+            {{ icon('plus-circle') }} Nuevo Rol
+          </button>
+        {% elif active_tab == 'users' %}
+          <a href="#" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 whitespace-nowrap">
+            {{ icon('plus-circle') }} Nuevo Usuario
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Tabs Content #}
+    <div id="rolesContent" class="tab-content space-y-4 {% if active_tab != 'roles' %}hidden{% endif %}">
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+        <div class="flex flex-col space-y-1.5 p-6 pb-3">
+          <h3 class="text-2xl font-semibold leading-none tracking-tight">Lista de Roles</h3>
+          <p class="text-sm text-muted-foreground">Gestione los roles existentes en el sistema y sus descripciones</p>
+        </div>
+        <div class="p-6 pt-0">
+          <div class="relative w-full overflow-auto">
+            <table class="w-full caption-bottom text-sm">
+              <thead class="[&_tr]:border-b">
+                <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nombre</th>
+                  <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Descripción</th>
+                  <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">Usuarios</th>
+                  <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="[&_tr:last-child]:border-0">
+                {% for role in roles %}
+                <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                  <td class="p-4 align-middle font-medium">
+                    <div class="flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
+                                  {% if role.color == 'destructive' %}border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80
+                                  {% elif role.color == 'secondary' %}border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80
+                                  {% else %}border-transparent bg-primary text-primary-foreground hover:bg-primary/80{% endif %}">
+                        {{ role.name }}
+                      </span>
+                    </div>
+                  </td>
+                  <td class="p-4 align-middle">{{ role.description }}</td>
+                  <td class="p-4 align-middle text-center">{{ role.users }}</td>
+                  <td class="p-4 align-middle text-right">
+                    <div class="flex justify-end gap-2">
+                      <a href="#" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-muted-foreground hover:text-foreground">
+                        {{ icon('pencil') }}
+                      </a>
+                      <form method="POST" action="{{ url_for('admin.delete_role', role_id=role.id) }}" onsubmit="return confirm('¿Está seguro de que desea eliminar este rol?');">
+                        <button type="submit" 
+                                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-muted-foreground hover:text-destructive"
+                                {% if role.name == 'Administrador' %}disabled{% endif %}>
+                          {{ icon('trash-2') }}
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="p-4 h-24 text-center align-middle">No se encontraron resultados.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="usersContent" class="tab-content space-y-4 {% if active_tab != 'users' %}hidden{% endif %}">
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+        <div class="flex flex-col space-y-1.5 p-6 pb-3">
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">Lista de Usuarios</h3>
+            <p class="text-sm text-muted-foreground">Gestione los usuarios del sistema y sus roles asignados</p>
+        </div>
+        <div class="p-6 pt-0">
+            <div class="relative w-full overflow-auto">
+                <table class="w-full caption-bottom text-sm">
+                    <thead class="[&_tr]:border-b">
+                        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Nombre</th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Correo electrónico</th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Rol</th>
+                            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Estado</th>
+                            <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="[&_tr:last-child]:border-0">
+                        {% for user in users %}
+                        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                            <td class="p-4 align-middle font-medium">{{ user.name }}</td>
+                            <td class="p-4 align-middle">{{ user.email }}</td>
+                            <td class="p-4 align-middle">
+                                <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
+                                            {% if user.role == 'Administrador' %}border-transparent bg-destructive text-destructive-foreground
+                                            {% elif user.role == 'Validador' %}border-transparent bg-secondary text-secondary-foreground
+                                            {% else %}border-transparent bg-primary text-primary-foreground{% endif %}">
+                                    {{ user.role }}
+                                </span>
+                            </td>
+                            <td class="p-4 align-middle">
+                                <div class="flex items-center">
+                                    {% if user.status == 'Activo' %}
+                                    <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground border-ies-success-500 bg-ies-success-50 text-ies-success-500">
+                                        {{ icon('check-circle-2') }} Activo
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground bg-muted text-muted-foreground">
+                                        {{ icon('x-circle') }} Inactivo
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="p-4 align-middle text-right">
+                                <div class="flex justify-end gap-2">
+                                    <a href="#" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 text-muted-foreground hover:text-foreground">
+                                        {{ icon('pencil') }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="p-4 h-24 text-center align-middle">No se encontraron resultados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="permissionsContent" class="tab-content space-y-4 {% if active_tab != 'permissions' %}hidden{% endif %}">
+        <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6 pb-3">
+                <h3 class="text-2xl font-semibold leading-none tracking-tight">Matriz de Permisos</h3>
+                <p class="text-sm text-muted-foreground">Configure los permisos para cada rol en el sistema</p>
+            </div>
+            <div class="p-6 pt-0">
+              <form method="POST" action="{{ url_for('admin.manage_roles') }}"> {# Action to handle permission saving #}
+                <input type="hidden" name="save_permissions" value="true">
+                <div class="overflow-x-auto">
+                    <table class="w-full caption-bottom text-sm">
+                        <thead class="[&_tr]:border-b">
+                            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Módulo / Acción</th>
+                                {% for role in all_roles_for_matrix %}
+                                <th class="h-12 px-4 text-center align-middle font-medium text-muted-foreground">
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
+                                            {% if role.color == 'destructive' %}border-transparent bg-destructive text-destructive-foreground
+                                            {% elif role.color == 'secondary' %}border-transparent bg-secondary text-secondary-foreground
+                                            {% else %}border-transparent bg-primary text-primary-foreground{% endif %}">
+                                        {{ role.name }}
+                                        </span>
+                                    </div>
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody class="[&_tr:last-child]:border-0">
+                            {% for permission_module in permissions_matrix %}
+                            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted bg-muted/50">
+                                <td class="p-4 align-middle font-medium" colspan="{{ all_roles_for_matrix|length + 1 }}">{{ permission_module.module }}</td>
+                            </tr>
+                            {% for action in permission_module.actions %}
+                            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                                <td class="p-4 pl-6 align-middle">{{ action|capitalize }}</td>
+                                {% for role in all_roles_for_matrix %}
+                                <td class="p-4 align-middle text-center">
+                                    <input type="checkbox" name="perm_{{ role.id }}_{{ permission_module.id }}_{{ action }}" value="true"
+                                           class="peer h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
+                                           data-state="{{ 'checked' if get_role_permission(role.name, permission_module.module, action) else 'unchecked' }}"
+                                           {% if get_role_permission(role.name, permission_module.module, action) %}checked{% endif %}
+                                           onchange="this.setAttribute('data-state', this.checked ? 'checked' : 'unchecked')"
+                                           style="appearance: none; background-color: var(--input-bg); position: relative; display: inline-block;"
+                                           >
+                                    <span class="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                                          style="background-color: var(--thumb-bg); position: absolute; top: 2px; left: 2px; transition: transform 0.2s;"
+                                          data-state="{{ 'checked' if get_role_permission(role.name, permission_module.module, action) else 'unchecked' }}"></span>
+
+                                    {# Actual ShadCN Switch styling is complex to replicate with just classes for data-state on input.
+                                       This is a simplified visual. For full fidelity, custom JS or a real switch component port is needed.
+                                       Or use simple checkboxes:
+                                    <input type="checkbox"
+                                           class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                           {% if get_role_permission(role.name, permission_module.module, action) %}checked{% endif %}>
+                                    #}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                        Guardar Permisos
+                    </button>
+                </div>
+              </form>
+            </div>
+        </div>
+    </div>
+
+  </div>
+
+  <div id="addRoleDialog" class="fixed inset-0 z-50 bg-black/80 items-center justify-center {% if not (request.method == 'POST' and 'add_role' in request.form and validation_errors_for_dialog) %}hidden{% else %}flex{% endif %}" onclick="if (event.target === this) this.classList.add('hidden');">
+    <div class="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" 
+         onclick="event.stopPropagation();">
+      <div class="flex flex-col space-y-1.5 text-center sm:text-left">
+        <h2 class="text-lg font-semibold leading-none tracking-tight">Crear Nuevo Rol</h2>
+        <p class="text-sm text-muted-foreground">Complete la información para crear un nuevo rol en el sistema.</p>
+      </div>
+      <form method="POST" action="{{ url_for('admin.manage_roles') }}" class="space-y-4">
+        <input type="hidden" name="add_role" value="true">
+        <div class="space-y-2">
+          <label for="roleName" class="text-sm font-medium leading-none">Nombre del Rol</label>
+          <input id="roleName" name="roleName" placeholder="Ej: Coordinador" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" required>
+        </div>
+        <div class="space-y-2">
+          <label for="roleDescription" class="text-sm font-medium leading-none">Descripción</label>
+          <input id="roleDescription" name="roleDescription" placeholder="Descripción de las funciones del rol" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+        </div>
+        <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+          <button type="button" onclick="document.getElementById('addRoleDialog').classList.add('hidden');" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mt-2 sm:mt-0">
+            Cancelar
+          </button>
+          <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+            Crear Rol
+          </button>
+        </div>
+      </form>
+      <button onclick="document.getElementById('addRoleDialog').classList.add('hidden');" class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        <span class="sr-only">Close</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+{# Minimal JS for tab switching and dialog - can be expanded or replaced with Alpine.js #}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Dialog handling (simple show/hide)
+    const addRoleDialog = document.getElementById('addRoleDialog');
+    // Note: Showing dialog on form error from server-side is tricky without more involved JS or page reload.
+    // The example above tries to handle this by conditionally adding/removing 'hidden' in Jinja.
+
+    // The Flask route now handles active_tab via URL parameter, so JS for tab switching isn't strictly necessary for basic functionality.
+    // If client-side only tab switching is desired without page reload for filter/search, more JS would be needed.
+  });
+</script>
+{% endblock %}

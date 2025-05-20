@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Calificación mediante Lista de Cotejo - Sistema de Evaluación IES RFA{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Calificación mediante Lista de Cotejo</h1>
+    <p class="text-muted-foreground mt-2">
+      Evalúe al personal utilizando listas de cotejo con criterios predefinidos.
+    </p>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="space-y-4">
+    <h2 class="text-xl font-medium">Personal pendiente de evaluación</h2>
+    {% if pending_evaluations %}
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {% for person in pending_evaluations %}
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex flex-col space-y-1.5 p-6 pb-2"> {# CardHeader #}
+          <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ person.name }}</h3> {# CardTitle #}
+          <p class="text-sm text-muted-foreground">{{ person.role }} · {{ person.department }}</p> {# CardDescription #}
+        </div>
+        <div class="p-6 pt-0"> {# CardContent #}
+          <a href="{{ url_for('evaluations.start_checklist_evaluation', personnel_id=person.id) }}"
+             class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+            Evaluar
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="text-muted-foreground">No hay personal pendiente de evaluación.</p>
+    {% endif %}
+
+    <div class="mt-8">
+      <h2 class="text-xl font-medium mb-4">Evaluaciones completadas</h2>
+      {% if completed_evaluations %}
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {% for comp_eval in completed_evaluations %}
+        <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+          <div class="flex flex-col space-y-1.5 p-6 pb-2"> {# CardHeader #}
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ comp_eval.name }}</h3> {# CardTitle #}
+            <p class="text-sm text-muted-foreground">{{ comp_eval.role }} · {{ comp_eval.department }}</p> {# CardDescription #}
+          </div>
+          <div class="p-6 pt-0"> {# CardContent #}
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium">Calificación: {{ comp_eval.score }}</p>
+                <p class="text-xs text-muted-foreground">Completado: {{ comp_eval.completed_date }}</p>
+              </div>
+              <a href="{{ url_for('evaluations.view_completed_checklist_evaluation', evaluation_id=comp_eval.id) }}"
+                 class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+                Ver detalles
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-muted-foreground">No hay evaluaciones completadas recientemente.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

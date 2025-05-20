@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Incidencias - Sistema de Evaluación IES RFA{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight">Gestión de Incidencias</h1>
+      <p class="text-muted-foreground mt-2">
+        Registre y haga seguimiento a incidencias del sistema o proceso evaluativo.
+      </p>
+    </div>
+    <a href="{{ url_for('incidents.new_incident') }}"
+       class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+      Nueva Incidencia
+    </a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="p-4 mb-4 text-sm rounded-lg
+          {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+          {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+          {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+          role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="space-y-4">
+    {% if incidents %}
+      {% for incident in incidents %}
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+        <div class="flex flex-col space-y-1.5 p-6 pb-2"> {# CardHeader equivalent #}
+          <div class="flex justify-between">
+            <div>
+              <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ incident.title }}</h3> {# CardTitle #}
+              <p class="text-sm text-muted-foreground">Reportado: {{ incident.reported_date }} · {{ incident.type }}</p> {# CardDescription #}
+            </div>
+            <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
+                        {% if incident.status == 'Resuelto' %} border-transparent {{ incident.status_color_class if incident.status_color_class else 'bg-ies-success-50 text-ies-success-500 border-ies-success-500' }}
+                        {% elif incident.status == 'En proceso' %} border-transparent {{ incident.status_color_class if incident.status_color_class else 'bg-ies-warning-500 text-white' }}
+                        {% elif incident.status == 'Pendiente' %} border-transparent {{ incident.status_color_class if incident.status_color_class else 'bg-destructive text-destructive-foreground' }}
+                        {% else %} border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80 {% endif %}">
+              {{ incident.status }}
+            </div>
+          </div>
+        </div>
+        <div class="p-6 pt-0"> {# CardContent #}
+          <p class="text-sm text-muted-foreground">
+            {{ incident.description_summary }}
+          </p>
+          <div class="flex justify-end mt-4">
+            <a href="{{ url_for('incidents.view_incident', incident_id=incident.id) }}"
+               class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+              Ver detalles
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted-foreground">No hay incidencias registradas.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

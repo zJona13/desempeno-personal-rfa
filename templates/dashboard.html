@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Evaluación IES RFA{% endblock %}
+
+{% macro stat_card(title, value, icon_svg_name, trend=None, value_class_name=None) %}
+<div class="bg-card rounded-lg border shadow-sm overflow-hidden">
+  <div class="p-6">
+    <div class="flex items-start justify-between">
+      <div>
+        <p class="text-sm font-medium text-muted-foreground">{{ title }}</p>
+        <h3 class="text-2xl font-bold mt-2 {{ value_class_name if value_class_name else '' }}">{{ value }}</h3>
+        {% if trend %}
+        <div class="flex items-center mt-2">
+          <span class="text-xs font-medium {{ 'text-ies-success-500' if trend.is_positive else 'text-ies-danger-500' }}">
+            {{ '↑' if trend.is_positive else '↓' }} {{ trend.value|abs }}%
+          </span>
+          <span class="text-xs text-muted-foreground ml-1">vs. periodo anterior</span>
+        </div>
+        {% endif %}
+      </div>
+      <div class="p-2 rounded-full bg-primary/10 text-primary">
+        {# Replace with actual SVG or an include/macro for icons #}
+        {% if icon_svg_name == 'clipboard-list' %}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"></path></svg>
+        {% elif icon_svg_name == 'alert-circle' %}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+        {% elif icon_svg_name == 'shield-check' %}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>
+        {% elif icon_svg_name == 'bar-chart-4' %}
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><path d="M3 3v18h18"></path><path d="M7 16V7"></path><path d="M12 16V3"></path><path d="M17 16v-4"></path></svg>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro module_card(title, description, href, icon_svg_name, color_classes) %}
+<div class="bg-card rounded-lg border shadow-sm h-full overflow-hidden transition-all hover:shadow-md">
+  <div class="flex flex-col space-y-1.5 p-6 pb-2"> {# Adjusted padding from CardHeader #}
+    <div class="p-2 w-fit rounded-lg mb-3 {{ color_classes }}">
+      {# Replace with actual SVG or an include/macro for icons #}
+      {% if icon_svg_name == 'user-square-2' %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 21a6 6 0 0 0-12 0"></path><circle cx="12" cy="11" r="4"></circle><rect width="18" height="18" x="3" y="3" rx="2"></rect></svg>
+      {% elif icon_svg_name == 'clipboard-list' %}
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"></path></svg>
+      {% elif icon_svg_name == 'alert-circle' %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+      {% elif icon_svg_name == 'check-square' %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="m9 11 3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      {% elif icon_svg_name == 'users' %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      {% elif icon_svg_name == 'shield-check' %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>
+      {% elif icon_svg_name == 'bar-chart-4' %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M3 3v18h18"></path><path d="M7 16V7"></path><path d="M12 16V3"></path><path d="M17 16v-4"></path></svg>
+      {% else %}
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect></svg>
+      {% endif %}
+    </div>
+    <h3 class="text-lg font-semibold leading-none tracking-tight">{{ title }}</h3> {# CardTitle equivalent #}
+    <p class="text-sm text-muted-foreground">{{ description }}</p> {# CardDescription equivalent #}
+  </div>
+  <div class="flex items-center p-6 pt-2"> {# CardFooter equivalent, adjusted padding #}
+    <a href="{{ url_for(href[1:]) if href.startswith('/') else href }}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 w-full justify-start">
+      Acceder
+    </a>
+  </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="space-y-8">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">{{ greeting }}, {{ user_name }}</h1>
+    <p class="text-muted-foreground mt-2">
+      Bienvenido al Sistema Integral de Evaluación IES RFA.
+    </p>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    {{ stat_card(title="Evaluaciones pendientes", value=stats.evaluaciones_pendientes, icon_svg_name="clipboard-list", trend=stats.trend_evaluaciones) }}
+    {{ stat_card(title="Incidencias activas", value=stats.incidencias_activas, icon_svg_name="alert-circle", trend=stats.trend_incidencias, value_class_name="text-ies-warning-500") }}
+    {{ stat_card(title="Validaciones pendientes", value=stats.validaciones_pendientes, icon_svg_name="shield-check") }}
+    {{ stat_card(title="Total de resultados", value=stats.total_resultados, icon_svg_name="bar-chart-4", trend=stats.trend_resultados) }}
+  </div>
+
+  <div class="space-y-4">
+    <h2 class="text-xl font-semibold">Módulos disponibles</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {% for module in modules %}
+        {{ module_card(title=module.title, description=module.description, href=module.href, icon_svg_name=module.icon_svg_name, color_classes=module.color) }}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

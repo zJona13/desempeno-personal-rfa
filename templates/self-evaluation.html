@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Autoevaluación del Personal - Sistema de Evaluación IES RFA{% endblock %}
+
+{# Icon Macro (Simplified - ideally use SVG includes or a better system) #}
+{% macro lucide_icon(name, extra_classes="") %}
+  {% if name == 'clock' %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 mr-1 {{ extra_classes }}"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+  {% elif name == 'check-circle-2' %}
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3 mr-1 {{ extra_classes }}"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="space-y-6">
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight">Autoevaluación del Personal</h1>
+    <p class="text-muted-foreground mt-2">
+      Complete su autoevaluación según los criterios establecidos para el periodo vigente.
+    </p>
+  </div>
+
+  {% if show_form and evaluation_data %}
+    {# Evaluation Form Part #}
+    <div class="bg-card text-card-foreground rounded-lg border shadow-sm">
+      <div class="flex flex-col space-y-1.5 p-6 border-b bg-muted/50"> {# CardHeader equivalent #}
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ evaluation_data.title }}</h3> {# CardTitle #}
+            <p class="text-sm text-muted-foreground mt-1">Complete todos los criterios para enviar su autoevaluación</p> {# CardDescription #}
+          </div>
+          <form method="POST" action="{{ url_for('evaluations.self_evaluation', evaluation_id=1) }}" class="flex items-center space-x-2"> {# Assuming evaluation_id=1 for the form #}
+            {# CSRF token if using Flask-WTF #}
+            <a href="{{ url_for('evaluations.self_evaluation') }}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+              Cancelar
+            </a>
+            <button type="submit" name="action" value="save_draft" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2">
+              Guardar borrador
+            </button>
+            <button type="submit" name="action" value="submit_evaluation" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+              Enviar evaluación
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="p-6"> {# CardContent #}
+        <form method="POST" action="{{ url_for('evaluations.self_evaluation', evaluation_id=1) }}"> {# Make sure actions point to the right place #}
+             {# CSRF token #}
+            <div class="space-y-8">
+              {% set categories = evaluation_data.criteria | map(attribute='category') | unique | list %}
+              {% for category in categories %}
+              <div class="space-y-4">
+                <h3 class="text-lg font-medium">{{ category }}</h3>
+                <hr class="shrink-0 bg-border h-[1px] w-full"> {# Separator #}
+                
+                {% for criterion in evaluation_data.criteria if criterion.category == category %}
+                  <div class="space-y-2">
+                    <p class="text-sm font-medium">{{ criterion.text }}</p>
+                    <div class="flex flex-wrap gap-2">
+                      {% for option in ['Nunca', 'Raramente', 'A veces', 'Frecuentemente', 'Siempre'] %}
+                      <label class="flex items-center space-x-2 border rounded-md px-3 py-2 cursor-pointer hover:bg-muted">
+                        <input 
+                          type="radio" 
+                          name="criterion-{{ criterion.id }}" 
+                          value="{{ option }}"
+                          class="accent-primary"
+                          {# Pre-check if value matches: {{ 'checked' if criterion.value == option }} #}
+                        />
+                        <span class="text-sm">{{ option }}</span>
+                      </label>
+                      {% endfor %}
+                    </div>
+                    <div class="pt-2">
+                      <label class="text-sm text-muted-foreground">Comentarios (opcional):</label>
+                      <textarea 
+                        name="comment-criterion-{{ criterion.id }}"
+                        class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                        rows="2"
+                        placeholder="Agregue comentarios o evidencias adicionales..."
+                      >{# {{ criterion.comment if criterion.comment }} #}</textarea>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              {% endfor %}
+            </div>
+            {# Hidden inputs for overall form actions might be needed if not handled by buttons above #}
+            {# Or ensure the buttons within the header form also submit the main form data,
+               which is complex without JS. It's better to have submit buttons within the main form.
+               The header buttons were for React state changes, now they are part of a form or links.
+            #}
+             <div class="flex items-center space-x-2 mt-8">
+                 <a href="{{ url_for('evaluations.self_evaluation') }}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                  Cancelar
+                </a>
+                <button type="submit" name="action" value="save_draft" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2">
+                  Guardar borrador
+                </button>
+                <button type="submit" name="action" value="submit_evaluation" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                  Enviar evaluación
+                </button>
+            </div>
+        </form>
+      </div>
+    </div>
+
+  {% else %}
+    {# Evaluation List Part #}
+    <div class="space-y-4">
+      {% for eval_item in evaluations %}
+      <div class="bg-card text-card-foreground rounded-lg border shadow-sm hover:shadow-md transition-shadow {% if eval_item.status == 'active' %}cursor-pointer{% endif %}">
+        <div class="flex flex-col space-y-1.5 p-6 pb-2"> {# CardHeader equivalent #}
+          <div class="flex items-center justify-between">
+            <h3 class="text-2xl font-semibold leading-none tracking-tight">{{ eval_item.title }}</h3> {# CardTitle #}
+            <div class="flex items-center px-2 py-1 rounded-full text-xs font-medium {{ eval_item.status_bg_color }} {{ eval_item.status_text_color }}">
+              {{ lucide_icon(eval_item.status_icon) }} {{ eval_item.status_text }}
+            </div>
+          </div>
+          {% if eval_item.status == 'active' %}
+          <p class="text-sm text-muted-foreground">Fecha límite: {{ eval_item.due_date }}</p> {# CardDescription #}
+          {% else %}
+          <p class="text-sm text-muted-foreground">Finalizado: {{ eval_item.completed_date }}</p> {# CardDescription #}
+          {% endif %}
+        </div>
+        <div class="p-6 pt-0"> {# CardContent #}
+          <div class="flex justify-between items-center">
+            <div class="text-sm text-muted-foreground">
+              <span class="font-medium">{{ eval_item.criteria_count }} criterios</span>
+              {% if eval_item.status == 'active' %}
+              · Tiempo estimado: {{ eval_item.estimated_time_minutes }} minutos
+              {% elif eval_item.score %}
+              · Calificación: {{ eval_item.score }}
+              {% endif %}
+            </div>
+            <a href="{{ url_for('evaluations.self_evaluation', evaluation_id=eval_item.action_url_param) }}" 
+               class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 
+                      {% if eval_item.action_button_variant == 'outline' %}border border-input bg-background hover:bg-accent hover:text-accent-foreground{% else %}bg-primary text-primary-foreground hover:bg-primary/90{% endif %} 
+                      h-10 px-4 py-2">
+              {{ eval_item.action_button_text }}
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,52 +1,136 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {# Assuming you have a base.html layout #}
 
-{% block title %}
-Iniciar Sesión - IES RFA
-{% endblock %}
+{% block title %}Iniciar Sesión - Sistema de Evaluación IES RFA{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30 ">
-    <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-blue-500">I.E.S República Federal de Alemania</h2>
-            <p class="text-lg font-semibold">Sistema de Evaluación del Personal - IES RFA</p>
-        </div>
-
-        <div class="bg-background rounded-lg shadow-lg p-6 border">
-            <div class="w-full max-w-md space-y-8">
-                <div class="text-center">
-                    <h1 class="text-2xl font-bold">Iniciar Sesión</h1>
-                    <p class="text-sm text-muted-foreground mt-2">
-                        Ingrese sus credenciales para acceder al sistema
-                    </p>
-                </div>
-
-                <form action="#" method="POST" class="space-y-6">
-                    <div class="space-y-2">
-                        <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
-                        <input type="email" name="email" id="email" placeholder="correo@iesrfa.edu" required
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-                            <a href="#" class="text-sm hover:underline focus:outline-none focus:underline text-blue-500">¿Olvidó su contraseña?</a>
-                        </div>
-                        <input type="password" name="password" id="password" required placeholder="********"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition">
-                        Iniciar sesión
-                    </button>
-                </form>
-            </div>
-        </div>
-        <div class="text-center mt-4">
-            <p class="text-sm text-gray-600">Sistema de Evaluación del Personal - IES RFA</p>
-            <p class="text-xs text-gray-500">© 2025 Todos los derechos reservados</p>
-        </div>
+<div class="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-primary">IES RFA</h1>
+      <p class="text-xl font-medium">Sistema de Evaluación</p>
     </div>
+    
+    <div class="bg-background rounded-lg shadow-lg p-6 border">
+      <div class="w-full max-w-md space-y-8">
+        <div class="text-center">
+          <h1 class="text-2xl font-bold">Iniciar Sesión</h1>
+          <p class="text-sm text-muted-foreground mt-2">
+            Ingrese sus credenciales para acceder al sistema
+          </p>
+        </div>
+
+        {# Flash messages #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="p-4 mb-4 text-sm rounded-lg
+                {% if category == 'error' %} bg-red-100 text-red-700 dark:bg-red-200 dark:text-red-800 {% endif %}
+                {% if category == 'success' %} bg-green-100 text-green-700 dark:bg-green-200 dark:text-green-800 {% endif %}
+                {% if category == 'info' %} bg-blue-100 text-blue-700 dark:bg-blue-200 dark:text-blue-800 {% endif %}"
+                role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="flex flex-col gap-2 text-center text-sm">
+          <p class="text-muted-foreground">Credenciales de demostración:</p>
+          <div class="grid grid-cols-3 gap-2">
+            <button 
+              type="button" 
+              variant="outline" 
+              onclick="fillDemoCredentials('admin@iesrfa.edu', 'password')"
+              class="text-xs px-3 py-2 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground rounded-md">
+              Admin
+            </button>
+            <button 
+              type="button" 
+              variant="outline" 
+              onclick="fillDemoCredentials('docente@iesrfa.edu', 'password')"
+              class="text-xs px-3 py-2 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground rounded-md">
+              Docente
+            </button>
+            <button 
+              type="button" 
+              variant="outline" 
+              onclick="fillDemoCredentials('estudiante@iesrfa.edu', 'password')"
+              class="text-xs px-3 py-2 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground rounded-md">
+              Estudiante
+            </button>
+          </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('home') }}" class="space-y-6">
+          {# Add CSRF token if you are using Flask-WTF or similar #}
+          {# {{ form.csrf_token }} #}
+          
+          <div class="space-y-2">
+            <label for="email" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Correo electrónico</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="correo@iesrfa.edu"
+              value="{{ email if email else '' }}" {# Pre-fill if form submitted with error #}
+              required
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Contraseña</label>
+              <a 
+                href="#" {# Replace with your password reset URL #}
+                class="text-sm text-primary hover:underline focus:outline-none focus:underline"
+              >
+                ¿Olvidó su contraseña?
+              </a>
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              required
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+            aria-label="Iniciar sesión"
+            {# Add disabled and loading state via JS if needed, e.g., using a little Alpine.js or vanilla JS #}
+          >
+            {# isLoading state would be managed by client-side JS if desired for immediate feedback #}
+            Iniciar sesión
+            {# 
+            <span class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent"></span>
+            Iniciando sesión... 
+            #}
+          </button>
+
+          <p class="text-center text-sm">
+            ¿No tiene una cuenta?
+            <a 
+              href="{{ url_for('static', filename='register.html') }}"
+              class="text-primary hover:underline focus:outline-none focus:underline"
+            >
+              Registrarse
+            </a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+  function fillDemoCredentials(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+  }
+</script>
 {% endblock %}

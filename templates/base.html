@@ -1,14 +1,115 @@
-<!doctype html>
-<html lang="en">
-  <head>
+<!DOCTYPE html>
+<html lang="es" class="light"> {# Default to light, JS can toggle 'dark' #}
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Sistema Integral de Evaluación IES RFA{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dist/output.css') }}" />
-  </head>
-  <body>
-    {% block content %}
-    {% endblock %}
-  </body>
+    <meta name="description" content="Sistema Integral de Evaluación para el personal y procesos del IES RFA" />
+    <meta name="author" content="IES RFA" />
+
+    <meta property="og:title" content="Sistema Integral de Evaluación IES RFA" />
+    <meta property="og:description" content="Sistema Integral de Evaluación para el personal y procesos del IES RFA" />
+    <meta property="og:type" content="website" />
+    {# Update OG image path if needed #}
+    <meta property="og:image" content="{{ url_for('static', filename='images/opengraph-image-p98pqg.png') }}" />
+
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    {# Update Twitter image path if needed #}
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/opengraph-image-p98pqg.png') }}" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dist/output.css') }}"> {# Adjust path if your output CSS is different #}
+    {# Add any other global CSS or font links here #}
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="bg-background text-foreground">
+    <div id="app-container" class="min-h-screen">
+        {% include 'partials/_header.html' %}
+        
+        <div class="flex"> {# Flex container for sidebar and main content #}
+            {% include 'partials/_sidebar.html' %}
+            
+            <main class="pt-16 md:pl-72 min-h-screen flex-1"> {# Adjusted padding-left for sidebar width #}
+                <div class="container mx-auto p-4 md:p-6 lg:p-8">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    {# Global JS, if any, or specific page scripts #}
+    <script>
+        // Basic theme toggling logic
+        const themeToggle = document.getElementById('theme-toggle-button');
+        const moonIcon = document.getElementById('moon-icon');
+        const sunIcon = document.getElementById('sun-icon');
+        const htmlElement = document.documentElement;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+                if (moonIcon) moonIcon.style.display = 'none';
+                if (sunIcon) sunIcon.style.display = 'inline-block';
+            } else {
+                htmlElement.classList.remove('dark');
+                if (moonIcon) moonIcon.style.display = 'inline-block';
+                if (sunIcon) sunIcon.style.display = 'none';
+            }
+            localStorage.setItem('theme', theme);
+        }
+        
+        // Apply saved theme or system preference
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const newTheme = htmlElement.classList.contains('dark') ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+        }
+
+        // Sidebar toggling logic
+        const sidebar = document.getElementById('sidebar');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+        const openSidebarButton = document.getElementById('open-sidebar-button'); // The hamburger/close icon in header
+        const openSidebarIcon = document.getElementById('open-sidebar-icon');
+        const closeSidebarIcon = document.getElementById('close-sidebar-icon');
+
+
+        function toggleSidebar() {
+            if (sidebar) {
+                sidebar.classList.toggle('-translate-x-full'); // For mobile
+                sidebar.classList.toggle('translate-x-0');
+            }
+            if (sidebarBackdrop) {
+                 sidebarBackdrop.classList.toggle('hidden');
+            }
+            if(openSidebarIcon && closeSidebarIcon){
+                openSidebarIcon.classList.toggle('hidden');
+                closeSidebarIcon.classList.toggle('hidden');
+            }
+        }
+
+        if (openSidebarButton) {
+            openSidebarButton.addEventListener('click', toggleSidebar);
+        }
+        if (sidebarBackdrop) {
+            sidebarBackdrop.addEventListener('click', toggleSidebar);
+        }
+        
+        // Close sidebar on nav link click on mobile
+        const navLinks = document.querySelectorAll('#sidebar nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
 </html>

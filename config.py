@@ -1,7 +1,7 @@
 class Config:
-    DB_HOST = 'sql308.infinityfree.com'
-    DB_USER = 'if0_39036307'
-    DB_PASSWORD = 'I3LackStarxX12'
-    DB_NAME = 'if0_39036307_mecapro'
+    DB_HOST = 'sql10.freesqldatabase.com'
+    DB_USER = 'sql10780136'
+    DB_PASSWORD = 'WhVIT2MEuc'
+    DB_NAME = 'sql10780136'
     DB_PORT = 3306
     SECRET_KEY = 'clave_secreta_para_jwt'

@@ -2,7 +2,7 @@
 
 {% block title %}Registrarse - Sistema de Evaluación IES RFA{% endblock %}
 
-{% block content %}
+{% block content_without_sidebar %}
 <div class="min-h-screen flex flex-col items-center justify-center p-4 bg-muted/30">
   <div class="w-full max-w-md">
     <div class="text-center mb-8">
@@ -37,8 +37,7 @@
           <p class="text-sm text-destructive">{{ error }}</p>
         {% endif %}
 
-        <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-4">
-          {# {{ form.csrf_token }} #}
+        <form method="POST" action="{{ url_for('register') }}" class="space-y-4">          {# {{ form.csrf_token }} #}
           <div class="space-y-2">
             <label for="name" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Nombre completo</label>
             <input
@@ -101,7 +100,7 @@
           <p class="text-center text-sm">
             ¿Ya tiene una cuenta?
             <a 
-              href="{{ url_for('auth.login') }}" 
+              href="{{ url_for('login') }}" 
               class="text-primary hover:underline focus:outline-none focus:underline"
             >
               Iniciar sesión

@@ -32,10 +32,6 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 
-# Tailwind / build outputs
-/static/dist/
-output.css
-
 # Pytest
 .cache/
 

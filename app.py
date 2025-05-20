@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-from flask import Flask, render_template
-from routes.route_sesion import ws_sesion
-
-app = Flask(__name__)
-app.register_blueprint(ws_sesion)
-=======
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from config import Config
 from conexionBD import Conexion
@@ -84,7 +77,6 @@ def inject_global_vars():
         now=datetime.datetime.utcnow(), # Para el copyright del año en sidebar
         show_sidebar_header= (user_token is not None) # Mostrar sidebar y header solo si está logueado
     )
->>>>>>> 9ddca798e95b8c8a5a3b83eef9920a93ecd46f0d
 
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
@@ -138,9 +130,6 @@ def login():
 
     return render_template('login.html')
 
-
-<<<<<<< HEAD
-=======
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if session.get('user_token'): # Si ya está logueado, redirigir al dashboard
@@ -391,7 +380,6 @@ def roles(): # Cambiado de manage_roles a roles para coincidir con url_for
                            validation_errors_for_dialog=None) # Para el modal de nuevo rol
 
 
->>>>>>> 9ddca798e95b8c8a5a3b83eef9920a93ecd46f0d
 #Iniciar el servicio web con Flask
 if __name__ == '__main__':
     app.run(port=8080, debug=True, host='0.0.0.0')
